@@ -1,0 +1,111 @@
+package com.accenture.lkm.ui;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import com.accenture.lkm.businessbean.CustomerBean;
+import com.accenture.lkm.businessbean.EmployeeBean;
+import com.accenture.lkm.service.CustomerService;
+import com.accenture.lkm.service.CustomerServiceIMPL;
+import com.accenture.lkm.service.EmployeeService;
+import com.accenture.lkm.utility.Factory;
+import com.accenture.lkm.utility.JPAUtility;
+
+public class UITester {
+
+	public static void main(String[] args) {
+		try {
+			
+			addCustomer();
+			//findCustomerById();
+			//deleteEmployeeById();
+			//updateCustomerBillById();
+			//updateCustomerBillByName("James", 343.4);
+			
+			Calendar fromDate= Calendar.getInstance();
+			fromDate.set(2016, 01, 01); //month starts from 0, 0-Jan, 1-Feb
+			
+			Calendar toDate= Calendar.getInstance();
+			toDate.set(2016, 02, 31); //month starts from 0, 0-Jan, 1-Feb
+			
+			getCustomersWithinDateRange(fromDate.getTime(), toDate.getTime());
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+		} finally {
+			JPAUtility.closeEntityManagerFactory();
+		}
+
+	}
+	static public void addEmployee(){
+		CustomerBean bean = new CustomerBean();
+		bean.setInsertTime(new Date());
+		bean.setEmployeeName("MSD1");
+		bean.setRole("Analyst");
+		bean.setSalary(100000.0);
+		CustomerService sr = new CustomerServiceIMPL();
+		try {
+			int id = sr.addCustomer(bean);
+			System.out.println("Cust Registered Successfully: " + id);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	static public void findCustomerById(){
+		CustomerService customerService = Factory.createCustomerService();
+		try {
+			CustomerBean cust = customerService.findCustomerById(1004);
+			System.out.println("CustomerName: "+cust.getCustomerName());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	static public void updateCustomerBillById(){
+		CustomerService customerService = Factory.createCustomerService();
+		try {
+			CustomerBean customerBean = new CustomerBean();
+			customerBean.setBill(1234.0);
+			customerBean.setCustomerId(1003);
+			CustomerBean ret=customerService.updateCustomerBillById(customerBean);
+			System.out.println("Customer: ["+ret.getCustomerId()+"] Bill updated to: "+ret.getBill());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	static public void deleteEmployeeById(){
+		CustomerService customerService = Factory.createCustomerService();
+		try {
+			CustomerBean cust = customerService.deleteCustomerById(1004);
+			System.out.println("Customer Deleted successfully!!: "+cust.getCustomerName());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	static public void getCustomersWithinDateRange(Date lowerBound, Date upperBound){
+		CustomerService customerService = Factory.createCustomerService();
+		try {
+			List<CustomerBean> custList = customerService.getCustomersWithinDateRange(lowerBound, upperBound);
+			
+			for (CustomerBean customerBean : custList) {
+				System.out.println(customerBean.getCustomerId()+", "+customerBean.getCustomerName()+", "+customerBean.getBill());
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	static public void updateCustomerBillByName(String name, Double bill){
+		CustomerService customerService = Factory.createCustomerService();
+		try {
+			Integer ret=customerService.updateCustomerBillByName(name, bill);
+			System.out.println("Number of Rows Updated Successfully are:"+ret);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+}
